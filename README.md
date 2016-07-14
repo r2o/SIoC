@@ -34,7 +34,6 @@ public class IoCModule : BaseIoCModule
 	}
 }
 
-
 Once you already have done that part, you need to add the following configuration on your application config
 
   <configSections>

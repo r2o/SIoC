@@ -17,6 +17,7 @@ After you download the package you need to create your class where all the bindi
 Your class should inherit BaseIoCModule and you need to implement the method called Load
 
 #Defining an IoCModule
+```
 
 public class IoCModule : BaseIoCModule
 {
@@ -33,6 +34,7 @@ public class IoCModule : BaseIoCModule
 		/// or BindToConstant<IHelloWorld>(new HelloWorld());
 	}
 }
+```
 
 Once you already have done that part, you need to add the following configuration on your application config
 

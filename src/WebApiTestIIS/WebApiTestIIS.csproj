@@ -76,6 +76,14 @@
       <Private>True</Private>
     </Reference>
     <Reference Include="Microsoft.CSharp" />
+    <Reference Include="SIoC.core, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\SIoC.core.1.0.0\lib\net45\SIoC.core.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="SIoC.WebApi, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\SIoC.WebApi.dll.1.0.0\lib\net45\SIoC.WebApi.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="System.Net.Http" />
     <Reference Include="System.Web.DynamicData" />
     <Reference Include="System.Web.Entity" />
@@ -140,16 +148,6 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\SIoC.core\SIoC.core.csproj">
-      <Project>{fbc2d1fc-d7fe-4e82-af2b-b002db875847}</Project>
-      <Name>SIoC.core</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\SIoC.WebApi\SIoC.WebApi.csproj">
-      <Project>{9a8dd7c6-ee86-419e-ac5a-44aa3e85ea68}</Project>
-      <Name>SIoC.WebApi</Name>
-    </ProjectReference>
   </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>

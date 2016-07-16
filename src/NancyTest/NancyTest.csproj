@@ -41,6 +41,14 @@
       <HintPath>..\packages\Nancy.Hosting.Self.1.4.1\lib\net40\Nancy.Hosting.Self.dll</HintPath>
       <Private>True</Private>
     </Reference>
+    <Reference Include="SIoC.core, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\SIoC.core.1.0.0\lib\net45\SIoC.core.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="SIoC.NancyFx, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\SIoC.NancyFx.dll.1.0.0\lib\net45\SIoC.NancyFx.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
@@ -60,16 +68,6 @@
   <ItemGroup>
     <None Include="App.config" />
     <None Include="packages.config" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\SIoC.core\SIoC.core.csproj">
-      <Project>{fbc2d1fc-d7fe-4e82-af2b-b002db875847}</Project>
-      <Name>SIoC.core</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\SIoC.NancyFx\SIoC.NancyFx.csproj">
-      <Project>{edb5f52a-0b57-4181-9697-cc8b76ea89be}</Project>
-      <Name>SIoC.NancyFx</Name>
-    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

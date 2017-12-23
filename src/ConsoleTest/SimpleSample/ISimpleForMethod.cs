@@ -1,11 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace ConsoleTest.SimpleSample
+﻿namespace ConsoleTest.SimpleSample
 {
+    using System;
+
     public interface ISimpleForMethod
     {
         void SaySomething();
@@ -13,16 +9,16 @@ namespace ConsoleTest.SimpleSample
 
     public class SimpleForMethod : ISimpleForMethod
     {
-        readonly string _message;
+        private readonly string message;
 
         public SimpleForMethod(string message)
         {
-            _message = message;
+            this.message = message;
         }
 
         public void SaySomething()
         {
-            Console.WriteLine(_message);
+            Console.WriteLine(message);
         }
     }
 }

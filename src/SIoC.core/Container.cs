@@ -1,43 +1,54 @@
-﻿using SIoC.core.Config;
-using System;
-using System.Configuration;
-
-namespace SIoC.core
+﻿namespace SIoC.core
 {
+    using SIoC.core.Config;
+    using System;
+    using System.Configuration;
+
     public class Container
     {
-        static readonly IContainerProvider _provider;
-        static object syncObj = new object();
+        private static readonly IContainerProvider Provider;
+
+        private static object syncObj = new object();
 
         static Container()
         {
             lock (syncObj)
             {
-                if (_provider != null)
+                if (Provider != null)
+                {
                     return;
+                }
 
                 var section = ConfigurationManager.GetSection("IoCSection") as IoCConfigurationSection;
                 if (section == null)
+                {
                     throw new ArgumentNullException("IoCConfigurationSection not defined");
+                }
 
                 if (string.IsNullOrEmpty(section.IoCModule) || string.IsNullOrEmpty(section.IoCModule.Trim()))
+                {
                     throw new ArgumentNullException("IoCModule not defined");
-
+                }
 
                 var cp = Type.GetType(section.ContainerProvider);
                 if (cp == null)
+                {
                     throw new Exception(string.Format("Invalid ContainerProvider defined {0}", section.ContainerProvider));
+                }
+
                 var t = Type.GetType(section.IoCModule);
                 if (t == null)
+                {
                     throw new Exception(string.Format("Invalid IoCModule defined {0}", section.IoCModule));
+                }
 
-                _provider = (IContainerProvider)Activator.CreateInstance(cp);
+                Provider = (IContainerProvider)Activator.CreateInstance(cp);
                 IIoCResolutionRoot rr;
                 IIoCBindingRoot br;
 
                 try
                 {
-                    rr = _provider.Get<IIoCResolutionRoot>();
+                    rr = Provider.Get<IIoCResolutionRoot>();
                 }
                 catch (Exception ex)
                 {
@@ -46,7 +57,7 @@ namespace SIoC.core
 
                 try
                 {
-                    br = _provider.Get<IIoCBindingRoot>();
+                    br = Provider.Get<IIoCBindingRoot>();
                 }
                 catch (Exception ex)
                 {
@@ -61,7 +72,7 @@ namespace SIoC.core
 
         public static T Get<T>()
         {
-            return _provider.Get<T>();
+            return Provider.Get<T>();
         }
     }
 }

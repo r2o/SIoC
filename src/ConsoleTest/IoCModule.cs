@@ -1,14 +1,9 @@
-﻿using ConsoleTest.SimpleSample;
-using ConsoleTest.ComplexSample;
-using SIoC.core;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace ConsoleTest
+﻿namespace ConsoleTest
 {
+    using ConsoleTest.ComplexSample;
+    using ConsoleTest.SimpleSample;
+    using SIoC.core;
+
     public class IoCModule : BaseIoCModule
     {
         public IoCModule(IIoCBindingRoot br, IIoCResolutionRoot rr) 
@@ -22,7 +17,6 @@ namespace ConsoleTest
             BindInTransient<IComplexInterfaceParameter, ComplexClassParameter>();
             BindInTransient<IComplexInterface, ComplexClass>();
             BindToMethod<ISimpleForMethod>(() => new SimpleForMethod("I am from BindToMethod"));
-
             BindToConstant<ISimpleForConstant>(new SimpleForConstant(1));
             BindInSingleton<ISimpleForSingleton, SimpleForSingleton>();
             BindInSingleton<IComplexWithMultipleParameters, ComplexWithMultipleParameter>();

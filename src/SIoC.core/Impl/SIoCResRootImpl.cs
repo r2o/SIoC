@@ -1,28 +1,35 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.Linq;
-using System.Linq.Expressions;
-
-namespace SIoC.core.Impl
+﻿namespace SIoC.core.Impl
 {
+    using System;
+    using System.Collections;
+    using System.Collections.Concurrent;
+    using System.Collections.Generic;
+    using System.Linq;
+    using System.Linq.Expressions;
+
     public class SIoCResRootImpl : IIoCResolutionRoot, IIoCBindingRoot
     {
-        internal HashSet<Type> _singletonTypes;
-        internal HashSet<Type> _constantTypes;
-        internal HashSet<Type> _transitentTypes;
+        private HashSet<Type> singletonTypes;
 
-        internal ConcurrentDictionary<Type, object> _singletonInstance;
-        internal ConcurrentDictionary<Type, object> _constantInstance;
+        private HashSet<Type> constantTypes;
 
-        internal ConcurrentDictionary<Type, TypeCache> _singletonImpl;
-        internal ConcurrentDictionary<Type, TypeCache> _constantImpl;
-        internal ConcurrentDictionary<Type, TypeCache> _transientImpl;
-        internal ConcurrentDictionary<Type, Func<object>> _methodImpl;
+        private HashSet<Type> transitentTypes;
 
-        internal ConcurrentDictionary<Type, BindingType> _bindingType;
-        ConcurrentDictionary<Type, object> _array;
+        private ConcurrentDictionary<Type, object> singletonInstance;
+
+        private ConcurrentDictionary<Type, object> constantInstance;
+
+        private ConcurrentDictionary<Type, TypeCache> singletonImpl;
+
+        private ConcurrentDictionary<Type, TypeCache> constantImpl;
+
+        private ConcurrentDictionary<Type, TypeCache> transientImpl;
+
+        private ConcurrentDictionary<Type, Func<object>> methodImpl;
+
+        private ConcurrentDictionary<Type, BindingType> bindingType;
+
+        private ConcurrentDictionary<Type, object> array;
 
         internal enum BindingType
         {
@@ -35,25 +42,19 @@ namespace SIoC.core.Impl
 
         public SIoCResRootImpl()
         {
-            _singletonTypes = new HashSet<Type>();
-            _constantTypes = new HashSet<Type>();
-            _transitentTypes = new HashSet<Type>();
-            _singletonInstance = new ConcurrentDictionary<Type, object>();
-            _constantInstance = new ConcurrentDictionary<Type, object>();
-            _singletonImpl = new ConcurrentDictionary<Type, TypeCache>();
-            _constantImpl = new ConcurrentDictionary<Type, TypeCache>();
-            _transientImpl = new ConcurrentDictionary<Type, TypeCache>();
-            _methodImpl = new ConcurrentDictionary<Type, Func<object>>();
-            _bindingType = new ConcurrentDictionary<Type, BindingType>();
-            _array = new ConcurrentDictionary<Type, object>();
+            singletonTypes = new HashSet<Type>();
+            constantTypes = new HashSet<Type>();
+            transitentTypes = new HashSet<Type>();
+            singletonInstance = new ConcurrentDictionary<Type, object>();
+            constantInstance = new ConcurrentDictionary<Type, object>();
+            singletonImpl = new ConcurrentDictionary<Type, TypeCache>();
+            constantImpl = new ConcurrentDictionary<Type, TypeCache>();
+            transientImpl = new ConcurrentDictionary<Type, TypeCache>();
+            methodImpl = new ConcurrentDictionary<Type, Func<object>>();
+            bindingType = new ConcurrentDictionary<Type, BindingType>();
+            array = new ConcurrentDictionary<Type, object>();
         }
-
-        void AddBindingType(Type t, BindingType bt)
-        {
-            if (!_bindingType.TryAdd(t, bt))
-                throw new Exception(string.Format("There is already a definition for type {0}", t.FullName));
-        }
-
+        
         public void BindInSingleton<TInterface, TImplementation>() where TImplementation : TInterface
         {
             BindInSingleton(typeof(TInterface), typeof(TImplementation));
@@ -67,13 +68,16 @@ namespace SIoC.core.Impl
         public void BindInSingleton(Type tInt, Type tImpl)
         {
             AddBindingType(tInt, BindingType.Singleton);
-            if (!_singletonTypes.Add(tInt))
+            if (!singletonTypes.Add(tInt))
+            {
                 throw new Exception(string.Format("There is already a definition for type {0}", tInt.FullName));
+            }
+
             var ctor = tImpl.GetConstructors().FirstOrDefault();
             var cache = new TypeCache();
             cache.TImpl = tImpl;
             cache.CtorParms = ctor.GetParameters();
-            _singletonImpl.TryAdd(tInt, cache);
+            singletonImpl.TryAdd(tInt, cache);
         }
 
         public void BindInTransient<TInterface, TImplementation>() where TImplementation : TInterface
@@ -90,14 +94,16 @@ namespace SIoC.core.Impl
         {
             AddBindingType(tInt, BindingType.Transient);
 
-            if (!_transitentTypes.Add(tInt))
+            if (!transitentTypes.Add(tInt))
+            {
                 throw new Exception(string.Format("There is already a definition for type {0}", tInt.FullName));
+            }
 
             var ctor = tImpl.GetConstructors().FirstOrDefault();
             var cache = new TypeCache();
             cache.TImpl = tImpl;
             cache.CtorParms = ctor.GetParameters();
-            _transientImpl.TryAdd(tInt, cache);
+            transientImpl.TryAdd(tInt, cache);
         }
 
         public void BindToMethod<TInterface>(Func<TInterface> func)
@@ -110,8 +116,10 @@ namespace SIoC.core.Impl
         {
             AddBindingType(tint, BindingType.Method);
 
-            if (!_methodImpl.TryAdd(tint, obj))
+            if (!methodImpl.TryAdd(tint, obj))
+            { 
                 throw new Exception(string.Format("There is already a definition for type {0}", tint.FullName));
+            }
         }
 
         public void BindToConstant<TInterface>(TInterface obj)
@@ -122,10 +130,12 @@ namespace SIoC.core.Impl
         public void BindToConstant(Type tint, object obj)
         {
             AddBindingType(tint, BindingType.Constant);
-            if (!_constantTypes.Add(tint))
+            if (!constantTypes.Add(tint))
+            {
                 throw new Exception(string.Format("There is already a definition for type {0}", tint.FullName));
+            }
 
-            _constantInstance.TryAdd(tint, obj);
+            constantInstance.TryAdd(tint, obj);
         }
 
         public bool HasBindingFor<T>()
@@ -135,7 +145,7 @@ namespace SIoC.core.Impl
 
         public bool HasBindingFor(Type tint)
         {
-            return _bindingType.ContainsKey(tint);
+            return bindingType.ContainsKey(tint);
         }
 
         public T Get<T>()
@@ -153,13 +163,12 @@ namespace SIoC.core.Impl
             return ResolveType(tint);
         }
 
-
         #region Resolution
 
-        object ResolveType(Type t)
+        private object ResolveType(Type t)
         {
             BindingType bt;
-            _bindingType.TryGetValue(t, out bt);
+            bindingType.TryGetValue(t, out bt);
             switch (bt)
             {
                 case BindingType.Constant:
@@ -175,6 +184,7 @@ namespace SIoC.core.Impl
                     {
                         return ResolveList(t);
                     }
+
                     if (typeof(MulticastDelegate).IsAssignableFrom(t))
                     {
                         var tmp = t.GetGenericArguments()[0];
@@ -184,11 +194,12 @@ namespace SIoC.core.Impl
                         var cmp = res.Compile();
                         return cmp;
                     }
+
                     throw new Exception(string.Format("No bindings found for type {0}", t.FullName));
             }
         }
 
-        object ResolveList(Type t)
+        private object ResolveList(Type t)
         {
             var realType = t.GetGenericArguments().First();
             var lst = typeof(List<>);
@@ -199,54 +210,63 @@ namespace SIoC.core.Impl
             object result;
             if (rs.GetType().IsGenericType && typeof(IEnumerable).IsAssignableFrom(rs.GetType().GetGenericTypeDefinition()))
             {
-                var irs = ((IEnumerable)rs);
+                var irs = (IEnumerable)rs;
                 var ienu = irs.GetEnumerator();
                 while (ienu.MoveNext())
                 {
                     var tt = ResolveType((Type)ienu.Current);
                     addm.Invoke(list, new object[] { tt });
                 }
-
             }
             else
             {
                 result = rs;
                 addm.Invoke(list, new object[] { result });
             }
+
             return list;
         }
 
-        object ResolveMethod(Type t)
+        private object ResolveMethod(Type t)
         {
             Func<object> tmp;
-            _methodImpl.TryGetValue(t, out tmp);
+            methodImpl.TryGetValue(t, out tmp);
             var obj = tmp();
             if (obj.GetType().IsGenericType && (obj.GetType().GetGenericTypeDefinition() == typeof(IEnumerable<>) || obj.GetType().GetGenericTypeDefinition() == typeof(IList<>)))
+            {
                 return ResolveList(obj.GetType());
+            }
+
             return tmp;
         }
 
-        object ResolveConstant(Type t)
+        private object ResolveConstant(Type t)
         {
             object rs;
-            _constantInstance.TryGetValue(t, out rs);
+            constantInstance.TryGetValue(t, out rs);
             if (rs.GetType().IsGenericType && (rs.GetType().GetGenericTypeDefinition() == typeof(IEnumerable<>) || rs.GetType().GetGenericTypeDefinition() == typeof(IList<>)))
+            {
                 return ResolveList(rs.GetType());
+            }
+
             return rs;
         }
 
-        object ResolveSingleton(Type t)
+        private object ResolveSingleton(Type t)
         {
             object rs;
-            if (_singletonInstance.TryGetValue(t, out rs))
+            if (singletonInstance.TryGetValue(t, out rs))
             {
                 if (rs.GetType().IsGenericType && (rs.GetType().GetGenericTypeDefinition() == typeof(IEnumerable<>) || rs.GetType().GetGenericTypeDefinition() == typeof(IList<>)))
+                {
                     return ResolveList(rs.GetType());
+                }
+
                 return rs;
             }
 
             TypeCache tmp;
-            _singletonImpl.TryGetValue(t, out tmp);
+            singletonImpl.TryGetValue(t, out tmp);
             List<object> parms = new List<object>();
             foreach (var p in tmp.CtorParms)
             {
@@ -254,21 +274,35 @@ namespace SIoC.core.Impl
             }
 
             rs = Activator.CreateInstance(tmp.TImpl, parms.ToArray());
-            if (!_singletonInstance.TryAdd(t, rs))
-                _singletonInstance.TryGetValue(t, out rs);
+            if (!singletonInstance.TryAdd(t, rs))
+            {
+                singletonInstance.TryGetValue(t, out rs);
+            }
+
             return rs;
         }
 
-        object ResolveTransient(Type t)
+        private object ResolveTransient(Type t)
         {
             TypeCache tmp;
-            _transientImpl.TryGetValue(t, out tmp);
+            transientImpl.TryGetValue(t, out tmp);
             List<object> parms = new List<object>();
             foreach (var p in tmp.CtorParms)
+            {
                 parms.Add(ResolveType(p.ParameterType));
+            }
 
             return Activator.CreateInstance(tmp.TImpl, parms.ToArray());
         }
+
+        private void AddBindingType(Type t, BindingType bt)
+        {
+            if (!bindingType.TryAdd(t, bt))
+            {
+                throw new Exception(string.Format("There is already a definition for type {0}", t.FullName));
+            }
+        }
+        
         #endregion
     }
 }

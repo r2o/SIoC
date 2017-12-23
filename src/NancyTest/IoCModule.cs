@@ -1,13 +1,8 @@
-﻿using NancyTest.Sample;
-using SIoC.core;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace NancyTest
+﻿namespace NancyTest
 {
+    using NancyTest.Sample;
+    using SIoC.core;
+
     public class IoCModule : BaseIoCModule
     {
         public IoCModule(IIoCBindingRoot br, IIoCResolutionRoot rr) : base(br, rr)

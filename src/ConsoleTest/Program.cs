@@ -1,17 +1,13 @@
-﻿using ConsoleTest.ComplexSample;
-using ConsoleTest.SimpleSample;
-using SIoC.core;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace ConsoleTest
+﻿namespace ConsoleTest
 {
-    class Program
+    using ConsoleTest.ComplexSample;
+    using ConsoleTest.SimpleSample;
+    using SIoC.core;
+    using System;
+
+    public class Program
     {
-        static void Main(string[] args)
+        public static void Main(string[] args)
         {
             var rr = Container.Get<IIoCResolutionRoot>();
             var simpleInterface = rr.Get<ISimpleInterface>();
@@ -28,8 +24,9 @@ namespace ConsoleTest
             {
                 var complexWithParameters = rr.Get<IComplexWithMultipleParameters>();
                 complexWithParameters.TestIt();
-                Console.WriteLine("");
+                Console.WriteLine(string.Empty);
             }
+
             Console.ReadLine();
         }
     }

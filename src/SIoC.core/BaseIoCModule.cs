@@ -1,92 +1,93 @@
-﻿using System;
-
-namespace SIoC.core
+﻿namespace SIoC.core
 {
+    using System;
+
     public abstract class BaseIoCModule : IIoCModule
     {
-        readonly IIoCResolutionRoot _rr;
-        readonly IIoCBindingRoot _br;
+        private readonly IIoCResolutionRoot resolutionRoot;
+
+        private readonly IIoCBindingRoot bindingRoot;
 
         protected BaseIoCModule(IIoCBindingRoot br, IIoCResolutionRoot rr)
         {
-            _rr = rr;
-            _br = br;
+            resolutionRoot = rr;
+            bindingRoot = br;
         }
 
         public void BindInSingleton<TInterface, TImplementation>() 
             where TImplementation : TInterface
         {
-            _br.BindInSingleton<TInterface, TImplementation>();
+            bindingRoot.BindInSingleton<TInterface, TImplementation>();
         }
 
         public void BindInSingleton<TInterface>(Type timpl)
         {
-            _br.BindInSingleton<TInterface>(timpl);
+            bindingRoot.BindInSingleton<TInterface>(timpl);
         }
 
         public void BindInSingleton(Type tint, Type timpl)
         {
-            _br.BindInSingleton(tint, timpl);
+            bindingRoot.BindInSingleton(tint, timpl);
         }
 
         public void BindInTransient<TInterface, TImplementation>() where TImplementation : TInterface
         {
-            _br.BindInTransient<TInterface, TImplementation>();
+            bindingRoot.BindInTransient<TInterface, TImplementation>();
         }
 
         public void BindInTransient<TInterface>(Type timpl)
         {
-            _br.BindInTransient<TInterface>(timpl);
+            bindingRoot.BindInTransient<TInterface>(timpl);
         }
 
         public void BindInTransient(Type tint, Type timpl)
         {
-            _br.BindInTransient(tint, timpl);
+            bindingRoot.BindInTransient(tint, timpl);
         }
 
         public void BindToMethod<TInterface>(Func<TInterface> func)
         {
-            _br.BindToMethod<TInterface>(func);
+            bindingRoot.BindToMethod(func);
         }
 
         public void BindToMethod(Type tint, Func<object> obj)
         {
-            _br.BindToMethod(tint, obj);
+            bindingRoot.BindToMethod(tint, obj);
         }
 
         public void BindToConstant<TInterface>(TInterface obj)
         {
-            _br.BindToConstant<TInterface>(obj);
+            bindingRoot.BindToConstant(obj);
         }
 
         public void BindToConstant(Type tint, object obj)
         {
-            _br.BindToConstant(tint, obj);
+            bindingRoot.BindToConstant(tint, obj);
         }
 
         public bool HasBindingFor<T>()
         {
-            return _br.HasBindingFor<T>();
+            return bindingRoot.HasBindingFor<T>();
         }
 
         public bool HasBindingFor(Type tint)
         {
-            return _br.HasBindingFor(tint);
+            return bindingRoot.HasBindingFor(tint);
         }
 
         public T Get<T>()
         {
-            return _rr.Get<T>();
+            return resolutionRoot.Get<T>();
         }
 
         public T Get<T>(Type tint)
         {
-            return _rr.Get<T>(tint);
+            return resolutionRoot.Get<T>(tint);
         }
 
         public object Get(Type tint)
         {
-            return _rr.Get(tint);
+            return resolutionRoot.Get(tint);
         }
 
         public abstract void Load();

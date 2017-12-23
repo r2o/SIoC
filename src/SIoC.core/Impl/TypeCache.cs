@@ -1,11 +1,12 @@
-﻿using System;
-using System.Reflection;
-
-namespace SIoC.core.Impl
+﻿namespace SIoC.core.Impl
 {
+    using System;
+    using System.Reflection;
+
     internal class TypeCache
     {
         internal Type TImpl { get; set; }
+
         internal ParameterInfo[] CtorParms { get; set; }
 
         internal TypeCache()

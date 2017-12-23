@@ -9,13 +9,13 @@
 
     public class SIoCDependenyResolver : IDependencyResolver, IDependencyScope
     {
-        readonly IIoCResolutionRoot _rr;
-        readonly IIoCBindingRoot _br;
+        private readonly IIoCResolutionRoot resolutionRoot;
+        private readonly IIoCBindingRoot bindingRoot;
 
         public SIoCDependenyResolver(IIoCResolutionRoot rr)
         {
-            _rr = rr;
-            _br = _rr.Get<IIoCBindingRoot>();
+            resolutionRoot = rr;
+            bindingRoot = resolutionRoot.Get<IIoCBindingRoot>();
         }
 
         public IDependencyScope BeginScope()
@@ -25,23 +25,26 @@
 
         public void Dispose()
         {
-
         }
 
         public object GetService(Type serviceType)
         {
-            if (!_br.HasBindingFor(serviceType))
+            if (!bindingRoot.HasBindingFor(serviceType))
+            {
                 return null;
+            }
 
-            return _rr.Get(serviceType);
+            return resolutionRoot.Get(serviceType);
         }
 
         public IEnumerable<object> GetServices(Type serviceType)
         {
-            if (!_br.HasBindingFor(serviceType))
+            if (!bindingRoot.HasBindingFor(serviceType))
+            {
                 return Enumerable.Empty<object>();
+            }
 
-            return _rr.Get(serviceType) as IEnumerable<object>;
+            return resolutionRoot.Get(serviceType) as IEnumerable<object>;
         }
 
         public void RegisterApiControllers()
@@ -50,12 +53,12 @@
             {
                 foreach (var t in asm.GetTypes().Where(f => typeof(ApiController).IsAssignableFrom(f) && !f.IsAbstract))
                 {
-                    if (!_br.HasBindingFor(t))
-                        _br.BindInTransient(t, t);
+                    if (!bindingRoot.HasBindingFor(t))
+                    {
+                        bindingRoot.BindInTransient(t, t);
+                    }
                 }
             }
         }
     }
-
 }
-

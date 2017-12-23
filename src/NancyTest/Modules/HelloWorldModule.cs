@@ -5,14 +5,14 @@
 
     public class HelloWorldModule : NancyModule
     {
-        readonly IHelloWorld _hello;
+        private readonly IHelloWorld hello;
 
         public HelloWorldModule(IHelloWorld hello)
         {
-            _hello = hello;
+            this.hello = hello;
             Get["api/nancy/saysomething"] = _ =>
             {
-                return Response.AsJson(_hello.SaySomething(), HttpStatusCode.OK);
+                return Response.AsJson(this.hello.SaySomething(), HttpStatusCode.OK);
             };
         }
     }

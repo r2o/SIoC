@@ -1,11 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace ConsoleTest.SimpleSample
+﻿namespace ConsoleTest.SimpleSample
 {
+    using System;
+
     public interface ISimpleInterface
     {
         void Something(string par1);

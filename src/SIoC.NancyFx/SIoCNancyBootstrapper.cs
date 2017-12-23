@@ -13,11 +13,11 @@
 
     public class SIoCNancyBootstrapper : NancyBootstrapperWithRequestContainerBase<IIoCResolutionRoot>
     {
-        static IIoCBindingRoot _br;
+        private static IIoCBindingRoot resolutionRoot;
 
         static SIoCNancyBootstrapper()
         {
-            _br = Container.Get<IIoCBindingRoot>();
+            resolutionRoot = Container.Get<IIoCBindingRoot>();
         }
 
         protected override IIoCResolutionRoot CreateRequestContainer(NancyContext context)
@@ -36,25 +36,29 @@
                 var tmp = ApplicationContainer.Get(((ModuleRegistration)enumerator.Current).ModuleType);
                 result.Add((INancyModule)tmp);
             }
+
             return result;
         }
 
         protected override INancyModule GetModule(IIoCResolutionRoot container, Type moduleType)
         {
-            if (!(_br.HasBindingFor(moduleType)))
-                _br.BindInTransient(moduleType, moduleType);
+            if (!resolutionRoot.HasBindingFor(moduleType))
+            {
+                resolutionRoot.BindInTransient(moduleType, moduleType);
+            }
+
             return (INancyModule)container.Get(moduleType);
         }
 
         protected override void RegisterRequestContainerModules(IIoCResolutionRoot container, IEnumerable<ModuleRegistration> moduleRegistrationTypes)
         {
             Func<object> func = () => moduleRegistrationTypes;
-            if (!_br.HasBindingFor<INancyModule>())
+            if (!resolutionRoot.HasBindingFor<INancyModule>())
             {
-                _br.BindToMethod(typeof(INancyModule), func);
+                resolutionRoot.BindToMethod(typeof(INancyModule), func);
                 foreach (var m in moduleRegistrationTypes)
                 {
-                    _br.BindInTransient(m.ModuleType, m.ModuleType);
+                    resolutionRoot.BindInTransient(m.ModuleType, m.ModuleType);
                 }
             }
         }
@@ -62,7 +66,10 @@
         protected override void ConfigureConventions(NancyConventions nancyConventions)
         {
             if (!string.IsNullOrWhiteSpace(ConfigurationManager.AppSettings["StaticContent"]))
+            {
                 nancyConventions.StaticContentsConventions.Add(StaticContentConventionBuilder.AddDirectory(ConfigurationManager.AppSettings["StaticContent"]));
+            }
+
             base.ConfigureConventions(nancyConventions);
         }
 
@@ -74,7 +81,7 @@
         protected override IEnumerable<IApplicationStartup> GetApplicationStartupTasks()
         {
             var tps = ApplicationContainer.Get(typeof(IApplicationStartup));
-            if (tps is System.Collections.IEnumerable)
+            if (tps is IEnumerable)
             {
                 var lst = (IEnumerable)tps;
                 return lst.OfType<Type>().Select(f => (IApplicationStartup)ApplicationContainer.Get(f));
@@ -90,6 +97,7 @@
                 return Environment.CurrentDirectory;
             }
         }
+
         protected override IRootPathProvider RootPathProvider
         {
             get { return new CustomRootPathProvider(); }
@@ -113,11 +121,12 @@
         protected override IEnumerable<IRegistrations> GetRegistrationTasks()
         {
             var tps = ApplicationContainer.Get(typeof(IRegistrations));
-            if (tps is System.Collections.IEnumerable)
+            if (tps is IEnumerable)
             {
                 var lst = (IEnumerable)tps;
                 return lst.OfType<Type>().Select(f => (IRegistrations)ApplicationContainer.Get(f));
             }
+
             return default(IEnumerable<IRegistrations>);
         }
 
@@ -126,16 +135,20 @@
             List<IRequestStartup> result = new List<IRequestStartup>();
             foreach (var t in requestStartupTypes)
             {
-                if (_br.HasBindingFor(t))
-                    _br.BindInTransient(t, t);
+                if (resolutionRoot.HasBindingFor(t))
+                {
+                    resolutionRoot.BindInTransient(t, t);
+                }
+
                 result.Add((IRequestStartup)container.Get(t));
             }
+
             return result;
         }
 
         protected override void RegisterBootstrapperTypes(IIoCResolutionRoot applicationContainer)
         {
-            _br.BindToConstant<INancyModuleCatalog>(this);
+            resolutionRoot.BindToConstant<INancyModuleCatalog>(this);
         }
 
         protected override void RegisterCollectionTypes(IIoCResolutionRoot container, IEnumerable<CollectionTypeRegistration> collectionTypeRegistrationsn)
@@ -145,15 +158,21 @@
                 switch (cr.Lifetime)
                 {
                     case Lifetime.Singleton:
-                        _br.BindToConstant(cr.RegistrationType, cr.ImplementationTypes);
+                        resolutionRoot.BindToConstant(cr.RegistrationType, cr.ImplementationTypes);
                         foreach (var i in cr.ImplementationTypes)
-                            _br.BindInSingleton(i, i);
+                        {
+                            resolutionRoot.BindInSingleton(i, i);
+                        }
+
                         break;
                     case Lifetime.Transient:
                         Func<object> impls = () => cr.ImplementationTypes;
-                        _br.BindToMethod(cr.RegistrationType, impls);
+                        resolutionRoot.BindToMethod(cr.RegistrationType, impls);
                         foreach (var i in cr.ImplementationTypes)
-                            _br.BindToMethod(i, () => ApplicationContainer.Get(i));
+                        {
+                            resolutionRoot.BindToMethod(i, () => ApplicationContainer.Get(i));
+                        }
+
                         break;
                 }
             }
@@ -167,10 +186,10 @@
                 {
                     case Lifetime.Transient:
                         Func<object> fc = () => c.Implementation;
-                        _br.BindToMethod(c.RegistrationType, fc);
+                        resolutionRoot.BindToMethod(c.RegistrationType, fc);
                         break;
                     case Lifetime.Singleton:
-                        _br.BindToConstant(c.RegistrationType, c.Implementation);
+                        resolutionRoot.BindToConstant(c.RegistrationType, c.Implementation);
                         break;
                     case Lifetime.PerRequest:
                         throw new InvalidOperationException("Unable to register a per request lifetime.");
@@ -185,10 +204,10 @@
                 switch (t.Lifetime)
                 {
                     case Lifetime.Transient:
-                        _br.BindInTransient(t.RegistrationType, t.ImplementationType);
+                        resolutionRoot.BindInTransient(t.RegistrationType, t.ImplementationType);
                         break;
                     case Lifetime.Singleton:
-                        _br.BindInSingleton(t.RegistrationType, t.ImplementationType);
+                        resolutionRoot.BindInSingleton(t.RegistrationType, t.ImplementationType);
                         break;
                     case Lifetime.PerRequest:
                         throw new InvalidOperationException("Unable to register a per request lifetime.");

@@ -1,24 +1,24 @@
-﻿using System.Configuration;
-
-namespace SIoC.core.Config
+﻿namespace SIoC.core.Config
 {
+    using System.Configuration;
+
     public sealed class IoCConfigurationSection : ConfigurationSection
     {
-        const string _IoCModule = "IoCModule";
-        const string _ContainerProvider = "ContainerProvider";
+        private const string IoCModuleName = "IoCModule";
+        private const string ContainerProviderName = "ContainerProvider";
 
-        [ConfigurationProperty(_IoCModule)]
+        [ConfigurationProperty(IoCModuleName)]
         public string IoCModule
         {
-            get { return ((string)(base[_IoCModule])); }
-            set { base[_IoCModule] = value; }
+            get { return (string)base[IoCModuleName]; }
+            set { base[IoCModuleName] = value; }
         }
 
-        [ConfigurationProperty(_ContainerProvider)]
+        [ConfigurationProperty(ContainerProviderName)]
         public string ContainerProvider
         {
-            get { return (string)base[_ContainerProvider]; }
-            set { base[_ContainerProvider] = value; }
+            get { return (string)base[ContainerProviderName]; }
+            set { base[ContainerProviderName] = value; }
         }
     }
 }

@@ -1,30 +1,23 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace ConsoleTest.SimpleSample
+﻿namespace ConsoleTest.SimpleSample
 {
     public interface ISimpleForConstant
     {
         int Sum(int value);
-        
     }
 
     public class SimpleForConstant : ISimpleForConstant
     {
-        int _start;
+        private int start;
 
         public SimpleForConstant(int start)
         {
-            _start = start;
+            this.start = start;
         }
 
         public int Sum(int value)
         {
-            _start += value;
-            return _start;
+            start += value;
+            return start;
         }
     }
 }
